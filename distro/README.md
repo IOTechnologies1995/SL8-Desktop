@@ -17,7 +17,7 @@ The existing React application remains the design reference and will be integrat
 Run the build on a Debian 13 (Trixie) amd64 machine or VM. Building inside a clean Debian VM is recommended.
 
 ```bash
-sudo ./distro/scripts/build-iso.sh
+sudo bash ./distro/scripts/build-iso.sh
 ```
 
 The script installs the required build dependency if it is missing, configures the live image, and invokes `lb build`. The resulting ISO is produced in the build workspace.
