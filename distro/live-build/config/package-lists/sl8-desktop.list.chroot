@@ -7,7 +7,7 @@ xserver-xorg-input-all
 
 # Hardware, networking, audio, and system utilities
 network-manager
-network-manager-gnome
+network-manager-applet
 plasma-nm
 pipewire
 pipewire-audio
@@ -21,8 +21,6 @@ desktop-base
 fonts-dejavu
 fonts-noto
 firmware-linux
-firmware-linux-nonfree
-firmware-misc-nonfree
 
 # Useful first-boot tools
 firefox-esr
