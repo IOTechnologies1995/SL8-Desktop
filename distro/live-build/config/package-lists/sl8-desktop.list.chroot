@@ -26,7 +26,7 @@ firmware-misc-nonfree
 
 # Useful first-boot tools
 firefox-esr
- konsole
+konsole
 dolphin
 kate
 systemsettings
