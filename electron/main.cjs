@@ -3,6 +3,7 @@ const path = require('node:path');
 
 function createWindow() {
   const win = new BrowserWindow({
+    show: true,
     width: 1280,
     height: 800,
     minWidth: 800,
@@ -17,7 +18,8 @@ function createWindow() {
     },
   });
 
-  win.loadFile(path.join(__dirname, '../dist/index.html'));
+   win.setFullScreen(true);
+   win.loadFile(path.join(__dirname, '../dist/index.html'));
 }
 
 app.whenReady().then(() => {

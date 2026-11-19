@@ -1,7 +1,7 @@
 {
-  "name": "react-example",
+  "name": "sl8-desktop",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "desktop": "electron ."
+    "desktop": "electron .",
+    "package:deb": "electron-builder --linux deb"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -30,10 +31,29 @@
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
     "electron": "^45.4.1",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2"
   },
-  "main": "electron/main.cjs"
+  "main": "electron/main.cjs",
+  "productName": "SL8 Desktop",
+  "build": {
+    "appId": "com/iotechnologies.sl8desktop",
+    "linux": {
+      "target": "deb",
+      "executableName": "sl8-desktop",
+      "category": "Utility"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ]
+  },
+  "author": {
+    "name": " IO Technologies",
+    "email": "Langrelj1995@gmail.com"
+  },
+  "description": "SL8 Desktop Environment by IO Technologies"
 }
