@@ -33,13 +33,14 @@ export const DesktopWidgets: React.FC<DesktopWidgetsProps> = ({
   onOpenCalendar,
 }) => {
   const [now, setNow] = useState(() => new Date());
-  const cityMeta = WEATHER_CITIES.find((c) => c.name === settings.weatherCity) ?? WEATHER_CITIES[0];
+  const cityMeta = WEATHER_CITIES.find((c) => c.name === settings.weatherCity);
+  const fallbackCity = cityMeta ?? WEATHER_CITIES[0];
 
   const [weather, setWeather] = useState<WeatherReading>({
-    tempC: cityMeta.fallbackTempC,
-    condition: cityMeta.fallbackCond,
-    windKmh: cityMeta.fallbackWind,
-    humidity: cityMeta.fallbackHum,
+    tempC: fallbackCity.fallbackTempC,
+    condition: fallbackCity.fallbackCond,
+    windKmh: fallbackCity.fallbackWind,
+    humidity: fallbackCity.fallbackHum,
     code: 2,
   });
 
@@ -56,37 +57,69 @@ export const DesktopWidgets: React.FC<DesktopWidgetsProps> = ({
 
   useEffect(() => {
     if (!settings.showDesktopWeather) return;
-    const city = WEATHER_CITIES.find((c) => c.name === settings.weatherCity) ?? WEATHER_CITIES[0];
-    setWeather({
-      tempC: city.fallbackTempC,
-      condition: city.fallbackCond,
-      windKmh: city.fallbackWind,
-      humidity: city.fallbackHum,
-      code: 2,
-    });
-
+    const city = WEATHER_CITIES.find((c) => c.name === settings.weatherCity);
     const controller = new AbortController();
-    fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`,
-      { signal: controller.signal }
-    )
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.current) {
-          const code = Number(data.current.weather_code ?? 2);
+    // Never display a different city's fallback as if it belonged to a custom location.
+    if (city) {
+      setWeather({
+        tempC: city.fallbackTempC,
+        condition: city.fallbackCond,
+        windKmh: city.fallbackWind,
+        humidity: city.fallbackHum,
+        code: 2,
+      });
+    } else {
+      setWeather({ tempC: 0, condition: 'Loading forecast…', windKmh: 0, humidity: 0, code: 2 });
+    }
+
+    const loadWeather = async () => {
+      try {
+        let latitude = city?.lat;
+        let longitude = city?.lon;
+        if (latitude === undefined || longitude === undefined) {
+          const query = settings.weatherCity.trim();
+          if (!query) throw new Error('Choose a location in Settings');
+          const lookup = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`,
+            { signal: controller.signal }
+          );
+          if (!lookup.ok) throw new Error('Location lookup unavailable');
+          const result = await lookup.json();
+          const match = result.results?.[0];
+          if (!match) throw new Error('Location not found');
+          latitude = match.latitude;
+          longitude = match.longitude;
+        }
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`,
+          { signal: controller.signal }
+        );
+        if (!response.ok) throw new Error('Forecast unavailable');
+        const data = await response.json();
+        if (!data.current) throw new Error('Forecast unavailable');
+        const code = Number(data.current.weather_code ?? 2);
+        if (!controller.signal.aborted) {
           setWeather({
-            tempC: Math.round(Number(data.current.temperature_2m ?? city.fallbackTempC)),
+            tempC: Math.round(Number(data.current.temperature_2m ?? 0)),
             condition: wmoToCondition(code),
-            windKmh: Math.round(Number(data.current.wind_speed_10m ?? city.fallbackWind)),
-            humidity: Math.round(Number(data.current.relative_humidity_2m ?? city.fallbackHum)),
+            windKmh: Math.round(Number(data.current.wind_speed_10m ?? 0)),
+            humidity: Math.round(Number(data.current.relative_humidity_2m ?? 0)),
             code,
           });
         }
-      })
-      .catch(() => {
-        // Gracefully retain local fallback weather reading
-      });
-
+      } catch (error) {
+        if (!controller.signal.aborted && !city) {
+          setWeather({
+            tempC: 0,
+            condition: error instanceof Error ? error.message : 'Forecast unavailable',
+            windKmh: 0,
+            humidity: 0,
+            code: 2,
+          });
+        }
+      }
+    };
+    void loadWeather();
     return () => controller.abort();
   }, [settings.weatherCity, settings.showDesktopWeather]);
 
