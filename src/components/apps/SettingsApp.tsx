@@ -459,20 +459,23 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
               <div className="p-4 rounded-none bg-[#0C1018] border border-white/[0.09] flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-white">Weather Location &amp; Unit</p>
-                  <p className="text-xs text-[#8E9AA9]">Select city forecast and temperature scale.</p>
+                  <p className="text-xs text-[#8E9AA9]">Enter any city or town, or choose a suggested location. Forecasts use Open-Meteo.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <select
+                  <input
+                    type="search"
+                    list="sl8-weather-cities"
                     value={settings.weatherCity}
                     onChange={(e) => onUpdateSettings({ weatherCity: e.target.value })}
-                    className="px-3 py-1.5 rounded-none bg-[#06080C] border border-white/12 text-xs font-mono text-white focus:outline-none"
-                  >
+                    placeholder="Enter a city or town"
+                    aria-label="Weather location"
+                    className="w-48 px-3 py-1.5 rounded-none bg-[#06080C] border border-white/12 text-xs font-mono text-white focus:outline-none"
+                  />
+                  <datalist id="sl8-weather-cities">
                     {WEATHER_CITIES.map((c) => (
-                      <option key={c.name} value={c.name}>
-                        {c.name}
-                      </option>
+                      <option key={c.name} value={c.name} />
                     ))}
-                  </select>
+                  </datalist>
                   <button
                     type="button"
                     onClick={() =>
