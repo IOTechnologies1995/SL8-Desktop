@@ -23,7 +23,7 @@ The script creates an isolated workspace at `distro/build/`, copies the live-bui
 To clean the workspace before a fresh build:
 
 ```bash
-sudo ./distro/scripts/clean-build.sh
+sudo bash ./distro/scripts/clean-build.sh
 ```
 
 ## Boot testing
