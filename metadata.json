@@ -1,0 +1,6 @@
+{
+  "name": "SL8 Desktop OS",
+  "description": "Futuristic Ubuntu-based Linux desktop environment built for security and privacy, featuring SL8 Launcher, ZHD2 Media Player, and NETCOM Web Browser.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

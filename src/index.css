@@ -1,0 +1,144 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --sl8-accent: #00e5ff;
+  --sl8-accent-soft: rgba(0, 229, 255, 0.14);
+  --sl8-accent-border: rgba(0, 229, 255, 0.48);
+  --sl8-accent-glow: rgba(0, 229, 255, 0.52);
+  --sl8-accent-fg: #05080c;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    background-color: #060709;
+    color: #e6eaf0;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  button,
+  a,
+  input,
+  select {
+    touch-action: manipulation;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Frosted rectangular glass pane helpers */
+.sl8-frosted-bar {
+  background: linear-gradient(180deg, rgba(16, 21, 29, 0.72) 0%, rgba(8, 10, 15, 0.64) 100%);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.sl8-frosted-titlebar {
+  background: linear-gradient(180deg, rgba(22, 29, 40, 0.66) 0%, rgba(11, 14, 21, 0.56) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.sl8-frosted-pane {
+  background: linear-gradient(155deg, rgba(16, 20, 28, 0.68) 0%, rgba(7, 9, 14, 0.78) 100%);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 22px 60px rgba(0, 0, 0, 0.68);
+}
+
+/* Theme-color pre-launch icon glow & dock hover highlight */
+.sl8-icon-tile {
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.sl8-icon-tile .sl8-icon-svg {
+  filter: drop-shadow(0 0 6px var(--sl8-accent-soft));
+  transition: filter 180ms ease, transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sl8-icon-tile:hover {
+  background-color: var(--sl8-accent-soft);
+  border-color: var(--sl8-accent);
+  box-shadow: 0 0 18px var(--sl8-accent-glow), inset 0 0 12px var(--sl8-accent-soft);
+}
+
+.sl8-icon-tile:hover .sl8-icon-svg {
+  filter: drop-shadow(0 0 10px var(--sl8-accent));
+}
+
+.sl8-icon-tile:active,
+.sl8-icon-tile[data-launching="true"] {
+  background-color: var(--sl8-accent-soft);
+  border-color: var(--sl8-accent);
+  box-shadow: 0 0 28px var(--sl8-accent), inset 0 0 18px var(--sl8-accent-border);
+}
+
+.sl8-icon-tile:active .sl8-icon-svg,
+.sl8-icon-tile[data-launching="true"] .sl8-icon-svg {
+  filter: drop-shadow(0 0 16px var(--sl8-accent));
+  transform: scale(1.06);
+}
+
+/* Sharp precision scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 160, 178, 0.25);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl8-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
