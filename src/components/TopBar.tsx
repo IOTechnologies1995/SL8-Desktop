@@ -16,6 +16,8 @@ import {
   RefreshCw,
   Check,
   Sparkles,
+  Power,
+  LogOut,
 } from 'lucide-react';
 import { AppId, OSSettings, SecurityState, WifiNetwork, WifiState } from '../types/os';
 import { AppIcon } from './AppIcons';
@@ -78,6 +80,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   const [now, setNow] = useState(() => new Date());
   const [openPopover, setOpenPopover] = useState<'clock' | 'wifi' | 'privacy' | 'system' | null>(null);
   const [scanningWifi, setScanningWifi] = useState(false);
+  const [pendingPower, setPendingPower] = useState<'shutdown' | 'restart' | 'logout' | null>(null);
+  const [powerError, setPowerError] = useState<string | null>(null);
   const [promptSsid, setPromptSsid] = useState<string | null>(null);
   const [wifiPassphrase, setWifiPassphrase] = useState('');
   const barRef = useRef<HTMLElement>(null);
@@ -171,6 +175,26 @@ export const TopBar: React.FC<TopBarProps> = ({
     }));
     setPromptSsid(null);
     setWifiPassphrase('');
+  };
+
+  const confirmPower = async () => {
+    const action = pendingPower;
+    if (!action) return;
+    setPendingPower(null);
+    setPowerError(null);
+    const bridge = (window as Window & {
+      sl8System?: { power: (action: 'shutdown' | 'restart' | 'logout') => Promise<{ ok: boolean; error?: string }> };
+    }).sl8System;
+    if (!bridge) {
+      setPowerError('System controls are only available in the installed SL8 desktop.');
+      return;
+    }
+    try {
+      const result = await bridge.power(action);
+      if (!result.ok) setPowerError(result.error ?? 'System action was not permitted.');
+    } catch {
+      setPowerError('Unable to contact the SL8 system service.');
+    }
   };
 
   const formattedDate = now.toLocaleDateString('en-US', {
@@ -648,6 +672,33 @@ export const TopBar: React.FC<TopBarProps> = ({
                 <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--sl8-accent)' }} />
                 Start Screensaver
               </button>
+              <div className="grid grid-cols-3 gap-1.5">
+                {([
+                  { action: 'logout', label: 'Log Off', Icon: LogOut },
+                  { action: 'restart', label: 'Restart', Icon: RotateCcw },
+                  { action: 'shutdown', label: 'Shut Down', Icon: Power },
+                ] as const).map(({ action, label, Icon }) => (
+                  <button
+                    key={action}
+                    type="button"
+                    onClick={() => { setPendingPower(action); setPowerError(null); }}
+                    className="py-2 px-1 rounded-none bg-white/[0.06] hover:bg-white/[0.12] text-[11px] text-white flex flex-col items-center gap-1"
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {pendingPower && (
+                <div className="p-2 border border-amber-400/40 bg-[#17130C] space-y-2 text-xs text-white" role="alertdialog" aria-label="Confirm system action">
+                  <p>Confirm {pendingPower === 'logout' ? 'log off' : pendingPower}? Save your work first.</p>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setPendingPower(null)} className="flex-1 p-2 bg-white/10">Cancel</button>
+                    <button type="button" onClick={() => void confirmPower()} className="flex-1 p-2 bg-amber-500/20 border border-amber-400/40">Confirm</button>
+                  </div>
+                </div>
+              )}
+              {powerError && <p role="alert" className="text-xs text-amber-300">{powerError}</p>}
               <div className="flex items-center justify-between gap-2">
                 <button
                   type="button"
