@@ -1,0 +1,41 @@
+# Base desktop and display stack
+kde-plasma-desktop
+sddm
+xorg
+xserver-xorg-video-all
+xserver-xorg-input-all
+
+# Hardware, networking, audio, and system utilities
+network-manager
+network-manager-gnome
+plasma-nm
+pipewire
+pipewire-audio
+wireplumber
+sudo
+dbus-user-session
+udisks2
+upower
+polkit-kde-agent-1
+desktop-base
+fonts-dejavu
+fonts-noto
+firmware-linux
+firmware-linux-nonfree
+firmware-misc-nonfree
+
+# Useful first-boot tools
+firefox-esr
+ konsole
+dolphin
+kate
+systemsettings
+discover
+git
+curl
+wget
+ca-certificates
+nano
+htop
+pciutils
+usbutils
