@@ -15,7 +15,7 @@ A clean Debian virtual machine is the recommended build host. Do not run the bui
 From the repository root:
 
 ```bash
-sudo ./distro/scripts/build-iso.sh
+sudo bash ./distro/scripts/build-iso.sh
 ```
 
 The script creates an isolated workspace at `distro/build/`, copies the live-build configuration into it, and runs the build there. The generated ISO and build log remain in that workspace.
