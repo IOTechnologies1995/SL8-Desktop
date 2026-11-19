@@ -34,6 +34,12 @@ mkdir -p "$WORK_DIR"
 cp -a "$CONFIG_DIR/." "$WORK_DIR/"
 cd "$WORK_DIR"
 
+# GitHub's file upload can leave auto/config without its executable bit.
+# live-build only auto-runs this configuration hook when it is executable.
+if [[ -f "$WORK_DIR/auto/config" ]]; then
+  chmod +x "$WORK_DIR/auto/config"
+fi
+
 lb config
 lb build 2>&1 | tee "$WORK_DIR/build.log"
 
