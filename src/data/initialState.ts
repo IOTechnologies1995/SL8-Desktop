@@ -52,7 +52,7 @@ export const WALLPAPERS: WallpaperOption[] = [
     name: 'Glass Panes',
     subtitle: 'Standard photo · Smoked 90° glass & cyan bevels',
     kind: 'photo',
-    src: '/src/assets/images/sl8_wallpaper_prism_1795108673126.jpg',
+    src: './src/assets/images/sl8_wallpaper_prism_1795108673126.jpg',
     fallbackGradient: 'linear-gradient(135deg, #121820 0%, #07090d 65%, #040507 100%)',
   },
   {
@@ -60,7 +60,7 @@ export const WALLPAPERS: WallpaperOption[] = [
     name: 'Obsidian Strata',
     subtitle: 'Standard photo · Brushed carbon waves & cyan rim',
     kind: 'photo',
-    src: '/src/assets/images/sl8_wallpaper_obsidian_1795106049790.jpg',
+    src: './src/assets/images/sl8_wallpaper_obsidian_1795106049790.jpg',
     fallbackGradient: 'radial-gradient(circle at 25% 20%, #152229 0%, #090b0f 55%, #050608 100%)',
   },
   {
@@ -68,7 +68,7 @@ export const WALLPAPERS: WallpaperOption[] = [
     name: 'Titanium Horizon',
     subtitle: 'Standard photo · Monolith grey & split light line',
     kind: 'photo',
-    src: '/src/assets/images/sl8_wallpaper_arctic_1795106048981.jpg',
+    src: './src/assets/images/sl8_wallpaper_arctic_1795106048981.jpg',
     fallbackGradient: 'linear-gradient(135deg, #1b2028 0%, #0a0d12 60%, #060709 100%)',
   },
   {
@@ -76,7 +76,7 @@ export const WALLPAPERS: WallpaperOption[] = [
     name: 'Stealth Contour',
     subtitle: 'Standard photo · Matte black topographic elevation',
     kind: 'photo',
-    src: '/src/assets/images/sl8_wallpaper_mesh_1795106051058.jpg',
+    src: './src/assets/images/sl8_wallpaper_mesh_1795106051058.jpg',
     fallbackGradient: 'radial-gradient(circle at 60% 45%, #111b20 0%, #07080b 65%, #040507 100%)',
   },
   {
@@ -84,7 +84,7 @@ export const WALLPAPERS: WallpaperOption[] = [
     name: 'Monolith Beam',
     subtitle: 'Standard photo · Dark slate geometry & cool beam',
     kind: 'photo',
-    src: '/src/assets/images/sl8_wallpaper_aurora_1795108673471.jpg',
+    src: './src/assets/images/sl8_wallpaper_aurora_1795108673471.jpg',
     fallbackGradient: 'linear-gradient(160deg, #141921 0%, #080a0e 60%, #040507 100%)',
   },
 ];

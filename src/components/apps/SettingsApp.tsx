@@ -628,7 +628,7 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
             <div className="p-4 rounded-none bg-[#0C1018] border border-white/[0.09] flex items-center gap-4">
               <div className="w-16 h-16 shrink-0 bg-[#030407] border border-white/15 flex items-center justify-center p-1">
                 <img
-                  src="/assets/aistudio/SL8Future_c112cf52.png"
+                  src="./assets/aistudio/SL8Future_c112cf52.png"
                   alt="SL8 OS Official Logo"
                   className="w-full h-full object-contain mix-blend-screen"
                 />

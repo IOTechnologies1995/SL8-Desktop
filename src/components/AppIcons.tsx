@@ -23,7 +23,7 @@ const GlassPlate: React.FC<{ accentBorder?: boolean }> = ({ accentBorder }) => (
   </>
 );
 
-export const SL8_LOGO_SRC = '/assets/aistudio/SL8Future_c112cf52.png';
+export const SL8_LOGO_SRC = './assets/aistudio/SL8Future_c112cf52.png';
 
 export const AppIcon: React.FC<AppIconProps> = ({ appId, size = 24, className = '' }) => {
   const svgClass = `sl8-icon-svg ${className}`.trim();
