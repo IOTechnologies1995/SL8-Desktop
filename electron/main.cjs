@@ -119,7 +119,7 @@ ipcMain.handle('sl8:network', async (_event, action, payload = {}) => {
             ? { ok: false, error: (stderr || error.message).trim() }
             : { ok: true, output: stdout.trim() }));
         child.stdin.on('error', () => {});
-        child.stdin.end('802-11-wireless-security.psk:' + password + '\\n');
+        child.stdin.end('802-11-wireless-security.psk:' + password + '\n');
       });
     }
     default:
