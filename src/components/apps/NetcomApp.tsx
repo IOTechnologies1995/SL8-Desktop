@@ -24,9 +24,9 @@ interface NetcomAppProps {
 }
 
 const QUICK_NAV = [
-  { code: 'DDG', label: 'DuckDuckGo', url: 'netcom://search?q=DuckDuckGo+Privacy' },
+  { code: 'DDG', label: 'DuckDuckGo', url: 'https://duckduckgo.com/' },
   { code: 'WIKI', label: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Ubuntu' },
-  { code: 'GIT', label: 'GitHub', url: 'netcom://search?q=GitHub+Open+Source' },
+  { code: 'GIT', label: 'GitHub', url: 'https://github.com/' },
   { code: 'HN', label: 'Hacker News', url: 'netcom://ubuntu-sec' },
 ];
 
@@ -70,7 +70,7 @@ function normalizeInputToUrl(raw: string): string {
   if (/^[a-z0-9-]+(\.[a-z]{2,})(\/.*)?$/i.test(trimmed)) {
     return `https://${trimmed}`;
   }
-  return `netcom://search?q=${encodeURIComponent(trimmed)}`;
+  return `https://duckduckgo.com/?q=${encodeURIComponent(trimmed)}`;
 }
 
 export const NetcomApp: React.FC<NetcomAppProps> = ({
@@ -88,7 +88,7 @@ export const NetcomApp: React.FC<NetcomAppProps> = ({
   const [reloadNonce, setReloadNonce] = useState(0);
   const [burnNotice, setBurnNotice] = useState(false);
   const [pinnedBookmarks, setPinnedBookmarks] = useState([
-    { label: 'Google', url: 'netcom://search?q=Google' },
+    { label: 'Google', url: 'https://www.google.com/' },
     { label: 'Privacy Audit', url: 'netcom://privacy-audit' },
   ]);
 
@@ -112,15 +112,7 @@ export const NetcomApp: React.FC<NetcomAppProps> = ({
     );
     setAddressDraft(nextUrl === 'netcom://start' ? '' : nextUrl);
     setShieldOpen(false);
-    if (shield.blockTrackers && nextUrl !== 'netcom://start') {
-      const blocked = Math.floor(2 + Math.random() * 5);
-      onUpdateShield((prev) => ({
-        ...prev,
-        trackersBlockedCount: prev.trackersBlockedCount + blocked,
-        sessionBlockedCount: prev.sessionBlockedCount + blocked,
-        dataSavedMb: Number((prev.dataSavedMb + blocked * 0.04).toFixed(2)),
-      }));
-    }
+
   };
 
   const handleSelectTab = (tab: BrowserTab) => {
@@ -788,26 +780,17 @@ export const NetcomApp: React.FC<NetcomAppProps> = ({
           </div>
         )}
 
-        {activeTab.url.startsWith('http') && (
+        {/^https?:\\/\\//i.test(activeTab.url) && (
           <div className="h-full flex flex-col">
             <div className="px-4 py-2 bg-[#0C1018] border-b border-white/[0.06] flex items-center justify-between gap-3 text-[11px] text-[#94A0B2] shrink-0">
-              <span>NetCom Chromium Shield frame · External sites with X-Frame-Options may require opening in a host tab.</span>
-              <a
-                href={activeTab.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#00D8F5] hover:underline flex items-center gap-1 whitespace-nowrap"
-              >
-                Open Externally <ExternalLink className="w-3 h-3" />
-              </a>
+              <span>NetCom Chromium browsing · External pages are isolated from SL8 system controls</span>
             </div>
-            <iframe
-              title={activeTab.title}
-              src={activeTab.url}
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              referrerPolicy="no-referrer"
-              className="flex-1 w-full bg-white"
-            />
+            {React.createElement('webview', {
+              key: activeTab.id + '-' + reloadNonce,
+              src: activeTab.url,
+              partition: activeTab.isPrivate ? 'netcom-private-' + activeTab.id : 'persist:netcom',
+              style: { flex: 1, width: '100%', minHeight: 0, background: '#fff' },
+            })}
           </div>
         )}
       </div>
