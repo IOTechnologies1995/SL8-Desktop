@@ -163,3 +163,96 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+// SL8 Audio Control - PipeWire / PulseAudio compatibility
+// Commands are restricted to safe, predefined pactl operations.
+
+function runAudioCommand(args) {
+  return new Promise((resolve) => {
+    execFile('pactl', args, {
+      timeout: 5000,
+      maxBuffer: 65536
+    }, (error, stdout, stderr) => {
+      if (error) {
+        resolve({
+          ok: false,
+          error: (stderr || error.message).trim()
+        });
+      } else {
+        resolve({
+          ok: true,
+          output: stdout.trim()
+        });
+      }
+    });
+  });
+}
+
+ipcMain.handle('sl8:audio', async (_event, action, value) => {
+  if (process.platform !== 'linux') {
+    return { ok: false, error: 'Audio control requires Linux.' };
+  }
+
+  switch (action) {
+    case 'get-volume': {
+      const result = await runAudioCommand([
+        'get-sink-volume',
+        '@DEFAULT_SINK@'
+      ]);
+
+      if (!result.ok) return result;
+
+      const matches = [...result.output.matchAll(/(\d+)%/g)];
+      if (!matches.length) {
+        return { ok: false, error: 'Unable to read volume.' };
+      }
+
+      const volume = Math.round(
+        matches.reduce((sum, match) => sum + Number(match[1]), 0) /
+        matches.length
+      );
+
+      return { ok: true, volume };
+    }
+
+    case 'set-volume': {
+      if (
+        typeof value !== 'number' ||
+        !Number.isFinite(value) ||
+        value < 0 ||
+        value > 100
+      ) {
+        return { ok: false, error: 'Invalid volume value.' };
+      }
+
+      const volume = Math.round(value);
+
+      const result = await runAudioCommand([
+        'set-sink-volume',
+        '@DEFAULT_SINK@',
+        `${volume}%`
+      ]);
+
+      return result.ok
+        ? { ok: true, volume }
+        : result;
+    }
+
+    case 'get-mute': {
+      const result = await runAudioCommand([
+        'get-sink-mute',
+        '@DEFAULT_SINK@'
+      ]);
+
+      if (!result.ok) return result;
+
+      return {
+        ok: true,
+        muted: result.output.includes('yes')
+      };
+    }
+
+    default:
+      return { ok: false, error: 'Unsupported audio action.' };
+  }
+});

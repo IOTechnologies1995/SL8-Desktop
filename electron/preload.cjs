@@ -3,6 +3,18 @@ const { contextBridge, ipcRenderer } = require('electron');
 const permittedActions = ['shutdown', 'restart', 'logout'];
 
 contextBridge.exposeInMainWorld('sl8System', {
+  audio: (action, value) => {
+    const allowed = ['get-volume', 'set-volume', 'get-mute'];
+
+    if (!allowed.includes(action)) {
+      return Promise.resolve({
+        ok: false,
+        error: 'Unsupported audio action.'
+      });
+    }
+
+    return ipcRenderer.invoke('sl8:audio', action, value);
+  },
   network: (action, payload = {}) => {
     const allowed = ['devices', 'connections', 'details', 'wifi-list', 'wifi-radio', 'wifi-status', 'disconnect', 'connect-saved', 'wifi-connect'];
     if (!allowed.includes(action)) {

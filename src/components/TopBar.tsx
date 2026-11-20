@@ -487,7 +487,25 @@ export const TopBar: React.FC<TopBarProps> = ({
                   min={0}
                   max={100}
                   value={settings.volume}
-                  onChange={(e) => onUpdateSettings({ volume: Number(e.target.value) })}
+                  onChange={(e) => {
+                  const volume = Number(e.target.value);
+                  onUpdateSettings({ volume });
+
+                  const bridge = (window as Window & {
+                    sl8System?: {
+                      audio?: (
+                        action: 'set-volume',
+                        value: number
+                      ) => Promise<{ ok: boolean; error?: string }>;
+                    };
+                  }).sl8System;
+
+                  if (bridge?.audio) {
+                    void bridge.audio('set-volume', volume).catch((error) => {
+                      console.error('SL8 audio control failed:', error);
+                    });
+                  }
+                }}
                   style={{ accentColor: 'var(--sl8-accent)' }}
                   className="w-full cursor-pointer"
                 />
