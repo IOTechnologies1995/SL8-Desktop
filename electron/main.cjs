@@ -109,9 +109,18 @@ ipcMain.handle('sl8:network', async (_event, action, payload = {}) => {
         return { ok: false, error: 'Invalid Wi-Fi password.' };
       }
       // -- prevents SSIDs beginning with a dash from being parsed as options.
-      const args = ['--wait', '35', 'device', 'wifi', 'connect', ssid];
-      if (password) args.push('password', password);
-      return runNmcli(args, 45000);
+      if (!password) return runNmcli(['--wait', '35', 'device', 'wifi', 'connect', ssid], 45000);
+      // Never put Wi-Fi credentials in process arguments or logs.
+      return new Promise((resolve) => {
+        const child = execFile('nmcli',
+          ['--wait', '35', '--passwd-file', '/dev/stdin', 'device', 'wifi', 'connect', ssid],
+          { timeout: 45000, maxBuffer: 1024 * 1024 },
+          (error, stdout, stderr) => resolve(error
+            ? { ok: false, error: (stderr || error.message).trim() }
+            : { ok: true, output: stdout.trim() }));
+        child.stdin.on('error', () => {});
+        child.stdin.end('802-11-wireless-security.psk:' + password + '\\n');
+      });
     }
     default:
       return { ok: false, error: 'Unsupported network action.' };
