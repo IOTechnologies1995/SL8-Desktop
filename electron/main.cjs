@@ -50,15 +50,12 @@ ipcMain.handle('sl8:power', async (_event, action) => {
     restart: ['systemctl', ['reboot']],
   };
   if (action === 'logout') {
-    // Ask Plasma to perform its normal logout sequence. Forcibly terminating
-    // the loginctl session can strand SDDM on a black screen after logout.
-    if (process.platform !== 'linux' || !process.env.DBUS_SESSION_BUS_ADDRESS) {
-      return { ok: false, error: 'A graphical Linux session bus is required to log out.' };
+    // SL8 runs under labwc, not KDE Plasma. Exiting the compositor allows
+    // the SL8 session launcher to finish and SDDM to show Gateway again.
+    if (process.platform !== 'linux' || process.env.XDG_CURRENT_DESKTOP?.toUpperCase() !== 'SL8') {
+      return { ok: false, error: 'Log off is only available in an SL8 Linux session.' };
     }
-    commands.logout = [
-      '/usr/bin/qdbus6',
-      ['org.kde.Shutdown', '/Shutdown', 'org.kde.Shutdown.logout'],
-    ];
+    commands.logout = ['/usr/bin/labwc', ['--exit']];
   }
   const command = commands[action];
   if (!command) return { ok: false, error: 'Unsupported power action' };
