@@ -85,6 +85,23 @@ export const TopBar: React.FC<TopBarProps> = ({
     setNetworkLabel(label || 'No connection');
     setNetworkConnected(connected);
   }, []);
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      const api = (window as Window & { sl8System?: { network?: (action: string) => Promise<{ok: boolean; output?: string}> } }).sl8System;
+      if (!api?.network) return;
+      try {
+        const result = await api.network('devices');
+        if (!active || !result.ok) return;
+        const connected = (result.output || '').split('\\n').map(line => line.split(/(?<!\\\\):/))
+          .find(parts => parts.length >= 4 && parts[1] !== 'loopback' && parts[2] === 'connected');
+        handleNetworkStatus(connected?.[3]?.replace(/\\\\:/g, ':') || '', !!connected);
+      } catch { /* Keep previous status if NetworkManager is temporarily unavailable. */ }
+    };
+    void check();
+    const timer = window.setInterval(() => void check(), 8000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [handleNetworkStatus]);
   const [openPopover, setOpenPopover] = useState<'clock' | 'wifi' | 'privacy' | 'system' | null>(null);
   const [scanningWifi, setScanningWifi] = useState(false);
   const [pendingPower, setPendingPower] = useState<'shutdown' | 'restart' | 'logout' | null>(null);
