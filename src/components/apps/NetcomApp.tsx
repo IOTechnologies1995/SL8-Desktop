@@ -780,7 +780,7 @@ export const NetcomApp: React.FC<NetcomAppProps> = ({
           </div>
         )}
 
-        {/^https?:\\/\\//i.test(activeTab.url) && (
+        {activeTab.url.startsWith('https://') || activeTab.url.startsWith('http://') ? (
           <div className="h-full flex flex-col">
             <div className="px-4 py-2 bg-[#0C1018] border-b border-white/[0.06] flex items-center justify-between gap-3 text-[11px] text-[#94A0B2] shrink-0">
               <span>NetCom Chromium browsing · External pages are isolated from SL8 system controls</span>
@@ -792,7 +792,7 @@ export const NetcomApp: React.FC<NetcomAppProps> = ({
               style: { flex: 1, width: '100%', minHeight: 0, background: '#fff' },
             })}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
