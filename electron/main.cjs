@@ -1,6 +1,23 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const { execFile } = require('node:child_process');
 const path = require('node:path');
+
+// Standard editing accelerators remain available even with the menu bar hidden.
+function installEditMenu() {
+  const menu = Menu.buildFromTemplate([{
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { role: 'selectAll' },
+    ],
+  }]);
+  Menu.setApplicationMenu(menu);
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -131,6 +148,25 @@ ipcMain.handle('sl8:network', async (_event, action, payload = {}) => {
 // NetCom uses an isolated Chromium webview rather than an iframe.
 // Never allow a remote page to attach a preload script or Node integration.
 app.on('web-contents-created', (_event, contents) => {
+  // Chromium doesn't provide an editable-field right-click menu by default.
+  contents.on('context-menu', (_event, params) => {
+    if (!params.isEditable && !params.selectionText) return;
+    const items = [];
+    if (params.isEditable) {
+      items.push({ role: 'undo', enabled: Boolean(params.editFlags?.canUndo) });
+      items.push({ role: 'redo', enabled: Boolean(params.editFlags?.canRedo) });
+      items.push({ type: 'separator' });
+      items.push({ role: 'cut', enabled: Boolean(params.editFlags?.canCut) });
+    }
+    items.push({ role: 'copy', enabled: Boolean(params.editFlags?.canCopy) });
+    if (params.isEditable) {
+      items.push({ role: 'paste', enabled: Boolean(params.editFlags?.canPaste) });
+      items.push({ type: 'separator' });
+      items.push({ role: 'selectAll' });
+    }
+    Menu.buildFromTemplate(items).popup({ window: BrowserWindow.fromWebContents(contents) || undefined });
+  });
+
   contents.on('will-attach-webview', (event, preferences, params) => {
     delete preferences.preload;
     delete preferences.preloadURL;
@@ -149,6 +185,7 @@ app.on('web-contents-created', (_event, contents) => {
 });
 
 app.whenReady().then(() => {
+  installEditMenu();
   createWindow();
 
   app.on('activate', () => {
