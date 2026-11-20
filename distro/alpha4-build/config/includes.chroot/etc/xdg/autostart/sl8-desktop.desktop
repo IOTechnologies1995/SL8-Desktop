@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=SL8 Desktop
+Comment=Start SL8 Desktop automatically
+Exec="/opt/SL8 Desktop/sl8-desktop"
+Terminal=false
+X-GNOME-Autostart-enabled=true
