@@ -16,6 +16,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      webviewTag: true,
       preload: path.join(__dirname, 'preload.cjs'),
     },
   });
@@ -125,6 +126,26 @@ ipcMain.handle('sl8:network', async (_event, action, payload = {}) => {
     default:
       return { ok: false, error: 'Unsupported network action.' };
   }
+});
+
+// NetCom uses an isolated Chromium webview rather than an iframe.
+// Never allow a remote page to attach a preload script or Node integration.
+app.on('web-contents-created', (_event, contents) => {
+  contents.on('will-attach-webview', (event, preferences, params) => {
+    delete preferences.preload;
+    delete preferences.preloadURL;
+    preferences.nodeIntegration = false;
+    preferences.contextIsolation = true;
+    preferences.sandbox = true;
+    try {
+      const url = new URL(params.src);
+      if (!['https:', 'http:'].includes(url.protocol)) event.preventDefault();
+    } catch { event.preventDefault(); }
+  });
+  contents.setWindowOpenHandler(({ url }) => {
+    // Popups cannot create privileged Electron windows.
+    return { action: 'deny' };
+  });
 });
 
 app.whenReady().then(() => {
