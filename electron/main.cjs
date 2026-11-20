@@ -32,11 +32,15 @@ ipcMain.handle('sl8:power', async (_event, action) => {
     restart: ['systemctl', ['reboot']],
   };
   if (action === 'logout') {
-    const sessionId = process.env.XDG_SESSION_ID;
-    if (!sessionId || !/^[a-zA-Z0-9_-]+$/.test(sessionId)) {
-      return { ok: false, error: 'No login session ID available. Log out through the desktop session.' };
+    // Ask Plasma to perform its normal logout sequence. Forcibly terminating
+    // the loginctl session can strand SDDM on a black screen after logout.
+    if (process.platform !== 'linux' || !process.env.DBUS_SESSION_BUS_ADDRESS) {
+      return { ok: false, error: 'A graphical Linux session bus is required to log out.' };
     }
-    commands.logout = ['loginctl', ['terminate-session', sessionId]];
+    commands.logout = [
+      '/usr/bin/qdbus6',
+      ['org.kde.Shutdown', '/Shutdown', 'org.kde.Shutdown.logout'],
+    ];
   }
   const command = commands[action];
   if (!command) return { ok: false, error: 'Unsupported power action' };
